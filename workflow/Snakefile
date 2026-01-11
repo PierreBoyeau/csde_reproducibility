@@ -1,0 +1,67 @@
+PREFIX = "module load miniconda; conda activate spatial-correction"
+PATH_TO_RAW_DATA = "/home/projects/nyosef/pierrebo/data/spatial_data/merfish_pancancer"
+
+dataset_name_to_full_name = {
+    "lung1": "HumanLungCancerPatient1",
+    "lung2": "HumanLungCancerPatient2",
+    "colon1": "HumanColonCancerPatient1",
+    "colon2": "HumanColonCancerPatient2",
+}
+
+
+def get_subsets():
+    subsets = []
+    for dataset in ["lung1", "lung2", "colon1", "colon2"]:
+        file = f"results/{dataset}_experiment.csv"
+        subsets.append(file)
+        for subset in ["cd8", "cd4", "cd8noncd4", "cd4noncd8"]:
+            file = f"results/{dataset}_experiment_{subset}.csv"
+            subsets.append(file)
+    return subsets
+
+rule all:
+    input:
+        get_subsets(),
+
+
+
+rule run_tcell_analysis:
+    output:
+        "results/{dataset}_experiment.csv"
+    resources:
+        lsf_queue="gsla_high_gpu",
+        mem="128GB",
+        lsf_extra="-R affinity[thread*4] -gpu num=1:j_exclusive=yes",
+    params:
+        full_dataset_name=lambda wildcards: dataset_name_to_full_name[wildcards.dataset]
+    shell:
+        """
+        {PREFIX}
+        python workflow/scripts/colocalization_experiment.py \
+        --adata-path {PATH_TO_RAW_DATA}/{wildcards.dataset}_adata.annotated.h5ad \
+        --cell-type-key "cell_type" \
+        --cell-type-value "t cell" \
+        --annotations-path {PATH_TO_RAW_DATA}/{params.full_dataset_name}/manual_annotations/annotations.json \
+        --spatial-neighbor-name "cancer" \
+        --spatial-dist-threshold 20 \
+        --output-path results/{wildcards.dataset}_experiment.csv
+        """
+
+rule run_tcellsubset_analysis:
+    output:
+        "results/{dataset}_experiment_{subset}.csv"
+    resources:
+        lsf_queue="gsla_high_gpu",
+        mem="64GB",
+        lsf_extra="-R affinity[thread*4] -gpu num=1:j_exclusive=yes",
+    params:
+        full_dataset_name=lambda wildcards: dataset_name_to_full_name[wildcards.dataset]
+    shell:
+        """
+        {PREFIX}
+        python workflow/scripts/t_cell_subset_experiment.py \
+        --adata-path {PATH_TO_RAW_DATA}/{wildcards.dataset}_adata.annotated.h5ad \
+        --annotations-path {PATH_TO_RAW_DATA}/{params.full_dataset_name}/manual_annotations/annotations.json \
+        --output-path results/{wildcards.dataset}_experiment_{wildcards.subset}.csv \
+        --subset {wildcards.subset}
+        """

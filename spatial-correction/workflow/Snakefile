@@ -1,0 +1,84 @@
+import hashlib
+import json
+import pandas as pd
+
+def hash_dict(d):
+    return hashlib.sha256(json.dumps(d).encode()).hexdigest()
+
+def parse_config(config):
+    cmd = " ".join([f"{k} {v}" for k, v in config.items()])
+    hash_ = hash_dict(config)
+    return {
+        "cmd": cmd,
+        "hash": hash_,
+    }
+
+default_config = {
+    "--n": 50,
+    "--n_total": 1000,
+    "--d": 5,
+    "--misassignment_rate": 0.4,
+    "--generate_nulldata": False,
+    "--de_rate": 0.5,
+    "--seed": 0,
+}
+all_configs = []
+
+# # n effect
+for seed in range(5):
+    config_misassignment_rate = [0.0, 0.1, 0.2, 0.3]
+    config_n_total = [1000, 2000, 3000, 4000, 5000]
+    for misassignment_rate in config_misassignment_rate:
+        for n_total in config_n_total:
+            config_copy = default_config.copy()
+            config_copy["--misassignment_rate"] = misassignment_rate
+            config_copy["--n_total"] = n_total
+            config_copy["--tag"] = "misassignment_rate"
+            config_copy["--seed"] = seed
+            all_configs.append(parse_config(config_copy))
+
+    # config_n = [100, 200, 300, 500]
+    # for n in config_n:
+    #     config_copy = default_config.copy()
+    #     config_copy["--n"] = n
+    #     config_copy["--tag"] = "n"
+    #     config_copy["--seed"] = seed
+    #     all_configs.append(parse_config(config_copy))
+
+    # # n_total effect
+    # config_n_total = [1000, 2000, 3000, 4000, 5000]
+    # for n_total in config_n_total:
+    #     config_copy = default_config.copy()
+    #     config_copy["--n_total"] = n_total
+    #     config_copy["--tag"] = "n_total"
+    #     config_copy["--seed"] = seed
+    #     all_configs.append(parse_config(config_copy))
+
+    # # d effect
+    # config_d = [5, 10, 20, 50, 100]
+    # for d in config_d:
+    #     config_copy = default_config.copy()
+    #     config_copy["--d"] = d
+    #     config_copy["--tag"] = "d"
+    #     config_copy["--seed"] = seed
+    #     all_configs.append(parse`_config(config_copy))
+all_configs = pd.DataFrame(all_configs).set_index("hash")
+all_configs = all_configs[~all_configs.index.duplicated(keep="first")]
+print(all_configs)
+
+rule all:
+    input:
+        expand("results/synthetic_experiment/{hash_}.tsv", hash_=all_configs.index)
+
+rule synthetic_experiment:
+    output:
+        tsv="results/synthetic_experiment/{hash_}.tsv",
+        json="results/synthetic_experiment/{hash_}.json"
+    conda:
+        "spatial-correction"
+    params:
+        cmd = lambda wildcards: all_configs['cmd'][wildcards.hash_]
+    shell:
+        """
+        python workflow/scripts/synthetic_experiment.py {params.cmd} --output {output.tsv}
+        """
