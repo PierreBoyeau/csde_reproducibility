@@ -12,8 +12,9 @@ source ~/.bashrc
 
 conda activate proseg
 
-transcript_file=~/data/spatial_data/merfish_pancancer/HumanColonCancerPatient1/detected_transcripts.processed.csv
-output_dir=~/data/spatial_data/merfish_pancancer/HumanColonCancerPatient1/proseg_results
+DATA_DIR=${MERFISH_DATA_DIR:-/path/to/merfish_pancancer}
+transcript_file="$DATA_DIR/HumanColonCancerPatient1/detected_transcripts.processed.csv"
+output_dir="$DATA_DIR/HumanColonCancerPatient1/proseg_results"
 
 proseg "$transcript_file" \
     --output-expected-counts "$output_dir/expected-counts.csv.gz" \

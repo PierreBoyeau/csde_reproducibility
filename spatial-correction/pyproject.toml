@@ -3,6 +3,7 @@ name = "spatial-correction"
 version = "0.1.0"
 description = ""
 authors = ["Pierre Boyeau <pierre.boyeau@gmail.com>"]
+license = "BSD-3-Clause"
 readme = "README.md"
 
 [tool.poetry.dependencies]

@@ -114,7 +114,6 @@ def main(
     adata = sc.read_h5ad(adata_path)
     if spatial_group_key not in adata.obs.columns:
         adata.obsm["pos"] = adata.obs[["centroid_x", "centroid_y"]].values
-        # breakpoint()
         _, d_to_nn = compute_dist_to_nn(
             adata, group_key=cell_type_key, group_value=spatial_neighbor_name
         )
@@ -134,10 +133,6 @@ def main(
 
     # prepare data
     adata_gt = adata[annotated_cells].copy()
-    # pair_data = adata_gt.obs.loc[:, ["hand_annot", "cell_type"]]
-    # pair_data = pair_data["hand_annot"].astype(str) + " " + pair_data["cell_type"].astype(str)
-    # pair_data.value_counts()
-    # breakpoint()
 
     adata_right_cells = adata_gt[
         adata_gt.obs["hand_annot"].str.contains(cell_type_value)

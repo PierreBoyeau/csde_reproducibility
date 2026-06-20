@@ -62,13 +62,11 @@ def main(
 
     adata = sc.read_h5ad(adata_path)
     adata.obsm["pos"] = adata.obs[["centroid_x", "centroid_y"]].values
-    # breakpoint()
     _, d_to_nn = compute_dist_to_nn(
         adata, group_key=cell_type_key, group_value=spatial_neighbor_name
     )
     adata.obs["d_to_nn"] = d_to_nn
 
-    # breakpoint()
     adata.obs[spatial_group_key] = (d_to_nn < spatial_dist_threshold).astype(int)
 
     # loading annotations

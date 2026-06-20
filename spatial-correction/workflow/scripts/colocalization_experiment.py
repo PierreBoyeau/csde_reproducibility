@@ -145,8 +145,6 @@ def main(
     adata_gt_pred = adata[adata_gt.obs.index].copy()
     adata_other = adata_all[~adata_all.obs.index.isin(adata_gt.obs.index)].copy()
 
-    breakpoint()
-
     y_gt = extract_group(adata_gt, "hand_annot", "t cell", spatial_group_key)
     y_pred = extract_group(adata_other, "cell_type", "t cell", spatial_group_key)
     y_gt_pred = extract_group(adata_gt_pred, "cell_type", "t cell", spatial_group_key)
@@ -219,7 +217,6 @@ def main(
     )
 
     # ppi_ew
-    # breakpoint()
     ppi_ew_model = InterceptRegression(lambd_mode="element", **SHARED_KWARGS)
     ppi_ew_model.fit(lambd_=None)
     ppi_ew_model.get_asymptotic_distribution()

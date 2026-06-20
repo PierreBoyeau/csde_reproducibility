@@ -5,12 +5,11 @@
 #BSUB -o logs/output_%J.out
 #BSUB -e logs/error_%J.err
 
-module load miniconda
-conda activate gcloud
+# Set DATA_DIR to the root of the merfish_pancancer dataset directory.
+DATA_DIR=${MERFISH_DATA_DIR:-/path/to/merfish_pancancer}
 
-cd /home/labs/nyosef/pierrebo/data/spatial_data/merfish_pancancer/HumanLungCancerPatient2
-mkdir images
-cd images
+mkdir -p "$DATA_DIR/HumanLungCancerPatient2/images"
+cd "$DATA_DIR/HumanLungCancerPatient2/images"
 
 gsutil -m cp \
   "gs://vz-ffpe-showcase/HumanLungCancerPatient2/images/micron_to_mosaic_pixel_transform.csv" \

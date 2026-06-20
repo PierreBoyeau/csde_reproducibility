@@ -1,5 +1,7 @@
-PREFIX = "module load miniconda; conda activate spatial-correction"
-PATH_TO_RAW_DATA = "/home/projects/nyosef/pierrebo/data/spatial_data/merfish_pancancer"
+import os
+
+PREFIX = "module load miniconda; conda activate ppi-spatial"
+PATH_TO_RAW_DATA = os.environ.get("MERFISH_DATA_DIR", "/path/to/merfish_pancancer")
 
 dataset_name_to_full_name = {
     "lung1": "HumanLungCancerPatient1",

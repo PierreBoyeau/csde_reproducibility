@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 from sklearn.neighbors import NearestNeighbors
@@ -30,8 +32,10 @@ MODEL_COLORS = {
 }
 
 
-def import_adata(dataset_name, spatial_neighbor_name):
-    path_to_adata = f"/Users/pierreboyeau/Data/merfish_pancancer/{dataset_name}_adata.annotated.h5ad"
+def import_adata(dataset_name, spatial_neighbor_name, data_dir=None):
+    if data_dir is None:
+        data_dir = os.environ["MERFISH_DATA_DIR"]
+    path_to_adata = f"{data_dir}/{dataset_name}_adata.annotated.h5ad"
     cell_type_key = "cell_type"
     spatial_dist_threshold = 20
 

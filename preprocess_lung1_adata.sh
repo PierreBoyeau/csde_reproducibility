@@ -5,9 +5,11 @@
 #BSUB -o logs/output_%J.out
 #BSUB -e logs/error_%J.err
 
+DATA_DIR=${MERFISH_DATA_DIR:-/path/to/merfish_pancancer}
+
 module load miniconda
 conda activate ppi-spatial
 
 python preprocess_data.py \
-~/data/spatial_data/merfish_pancancer/HumanLungCancerPatient1/proseg_results \
-~/data/spatial_data/merfish_pancancer/lung1_adata.h5ad
+"$DATA_DIR/HumanLungCancerPatient1/proseg_results" \
+"$DATA_DIR/lung1_adata.h5ad"

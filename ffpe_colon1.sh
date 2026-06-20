@@ -6,10 +6,12 @@
 #BSUB -e logs/error_%J.err
 
 module load miniconda
+DATA_DIR=${MERFISH_DATA_DIR:-/path/to/merfish_pancancer}
+
 conda activate ppi-spatial
 
-transcript_file=~/data/spatial_data/merfish_pancancer/HumanColonCancerPatient1/detected_transcripts.csv
-processed_transcripts_file=~/data/spatial_data/merfish_pancancer/HumanColonCancerPatient1/detected_transcripts.processed.csv
+transcript_file="$DATA_DIR/HumanColonCancerPatient1/detected_transcripts.csv"
+processed_transcripts_file="$DATA_DIR/HumanColonCancerPatient1/detected_transcripts.processed.csv"
 
 
 python workflow/ffpe-assign-transcripts-to-cells.py \
